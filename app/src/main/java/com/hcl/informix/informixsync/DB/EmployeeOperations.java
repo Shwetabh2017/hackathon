@@ -60,7 +60,7 @@ public class EmployeeOperations {
 
     // Getting single Employee
     public Employee getEmployee(long id) {
-
+        open();
         Cursor cursor = database.query(EmployeeDBHandler.TABLE_EMPLOYEES,allColumns,EmployeeDBHandler.COLUMN_ID + "=?",new String[]{String.valueOf(id)},null,null, null, null);
         if (cursor != null)
             cursor.moveToFirst();

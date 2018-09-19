@@ -74,8 +74,12 @@ public class Employee {
 		return "Emp id: "+getEmpId()+ "\n" +
 				"Name: "+getFirstname() + " " + getLastname() + "\n" +
 				"Hire Date: "+getHiredate() + "\n" +
-				"Department : "+getDept();
+				"Department : "+getDept() + "\n" +
+				"Gender :" +getGender();
+
 
 
 	}
+
+
 }

@@ -60,13 +60,14 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
 
 
 
+
         mode = getIntent().getStringExtra(EXTRA_ADD_UPDATE);
         if(mode.equals("Update")){
 
             addUpdateButton.setText("Update Employee");
             empId = getIntent().getLongExtra(EXTRA_EMP_ID,0);
-
             initializeEmployee(empId);
+
 
         }
 
