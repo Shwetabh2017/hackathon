@@ -107,6 +107,7 @@
         android:layout_height="@dimen/button_height"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/button_padding"
+        android:visibility="gone"
         android:text="@string/sync_employee" />
 
 

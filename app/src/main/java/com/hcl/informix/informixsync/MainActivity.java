@@ -2,8 +2,10 @@ package com.hcl.informix.informixsync;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,11 +27,20 @@ import android.widget.Toast;
 import com.hcl.informix.informixsync.DB.EmployeeDBHandler;
 import com.hcl.informix.informixsync.DB.EmployeeOperations;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -185,6 +196,8 @@ public class MainActivity extends AppCompatActivity {
 
         final EditText userInput = getEmpIdView.findViewById(R.id.editTextDialogUserInput);
 
+        deleteFromServer();
+
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
@@ -201,6 +214,93 @@ public class MainActivity extends AppCompatActivity {
                 .show();
 
     }
+
+    private void deleteFromServer() {
+        new SendDataToServerUpdates().execute(String.valueOf(""));
+    }
+
+        class SendDataToServerUpdates extends AsyncTask<String, String, String> {
+
+            @Override
+            protected String doInBackground(String... params) {
+                String JsonResponse = null;
+                String JsonDATA = params[0];
+                HttpURLConnection urlConnection = null;
+                BufferedReader reader = null;
+
+                SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                //  String dbname = pref.getString("dbname", "");
+                //  String tablename = pref.getString("tablename", "");
+
+                try {
+                    // URL url = new URL(baseUrl + dbname + tablename);
+                 //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
+                  //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
+                    URL url = new URL("http://10.115.96.147:27017/mydb/people?query={firstName:one}");
+                  urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setDoOutput(true);
+                    // is output buffer writter
+                    urlConnection.setRequestMethod("DELETE");
+                    urlConnection.setRequestProperty("Content-Type", "application/json");
+                   // urlConnection.setRequestProperty("Content-Type", "applicaiton/json; charset=utf-8");
+                    urlConnection.setRequestProperty("Accept", "application/json");
+//set headers and method
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                    writer.write(JsonDATA);
+// json data
+                    writer.close();
+
+                    InputStream inputStream = urlConnection.getInputStream();
+//input stream
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        // Nothing to do.
+                        return null;
+                    }
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String inputLine;
+                    while ((inputLine = reader.readLine()) != null)
+                        buffer.append(inputLine + "\n");
+                    if (buffer.length() == 0) {
+                        // Stream was empty. No point in parsing.
+                        return null;
+                    }
+                    JsonResponse = buffer.toString();
+//response data
+                    //  Log.i(TAG,JsonResponse);
+                    //send to post execute
+                    return JsonResponse;
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (final IOException e) {
+                            //  Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
+                }
+                return null;
+
+
+            }
+
+
+            @Override
+            protected void onPostExecute(String s) {
+
+
+            }
+
+        }
+
 
 
     @Override

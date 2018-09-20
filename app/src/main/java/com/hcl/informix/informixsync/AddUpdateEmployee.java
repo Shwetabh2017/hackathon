@@ -1,6 +1,8 @@
 package com.hcl.informix.informixsync;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +36,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.hcl.informix.informixsync.constants.baseUrl;
 
 public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFragment.DateDialogListener {
 
@@ -73,11 +77,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
         addUpdateButton = findViewById(R.id.button_add_update_employee);
         employeeOps = new EmployeeOperations(this);
         syncButton = findViewById(R.id.button_add_update_sync_employee);
-
-
         mode = getIntent().getStringExtra(EXTRA_ADD_UPDATE);
         if (mode.equals("Update")) {
-
             addUpdateButton.setText("Update Employee");
             empId = getIntent().getLongExtra(EXTRA_EMP_ID, 0);
             initializeEmployee(empId);
@@ -151,6 +152,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                     employeeOps.close();
                     Toast t = Toast.makeText(AddUpdateEmployee.this, "Employee " + newEmployee.getFirstname() + "has been added successfully !", Toast.LENGTH_SHORT);
                     t.show();
+                    senddatatoserver();
                     Intent i = new Intent(AddUpdateEmployee.this, MainActivity.class);
                     startActivity(i);
                 } else {
@@ -162,42 +164,51 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                     employeeOps.close();
                     Toast t = Toast.makeText(AddUpdateEmployee.this, "Employee " + oldEmployee.getFirstname() + " has been updated successfully !", Toast.LENGTH_SHORT);
                     t.show();
+                    senddatatoserverUpdate();
                     Intent i = new Intent(AddUpdateEmployee.this, MainActivity.class);
                     startActivity(i);
 
-                }
 
-                senddatatoserver();
+                }
 
 
             }
         });
 
-
     }
 
-/*
-    private void syncDB() {
-        JSONObject postData = new JSONObject();
-
-        JSONArray jsonArray = new JSONArray();
-        //  JSONObject obj = new JSONObject();
-
+    private void senddatatoserverUpdate() {
+        JSONObject post_dict = new JSONObject();
+        JSONObject details = new JSONObject();
+        String aa = "";
         try {
-            postData.put("firstName", newEmployee.getFirstname());
-            postData.put("lastName", newEmployee.getLastname());
-            postData.put("gender", newEmployee.getGender());
-            postData.put("hireDate", newEmployee.getHiredate());
-            postData.put("department", newEmployee.getDept());
+            post_dict.put("firstName", firstNameEditText.getText().toString());
+       /*     post_dict.put("lastName", lastNameEditText.getText().toString());
+            post_dict.put("gender", "M".toString());
+            post_dict.put("hireDate", hireDateEditText.getText().toString());
+            post_dict.put("department", deptEditText.getText().toString());*/
 
-            jsonArray.put(postData);
-            Log.e("data", "syncDB: " + jsonArray.toString());
-            new SendDeviceDetails().execute("http://10.115.96.147:27017/mydb/people", String.valueOf(jsonArray.put(postData)));
+           // details.put("$set", post_dict.toString());
+
+           // details.put("$set", "{\"$set\":\"{\\\"firstName\\\":\\\"nitinnnnnffg\\\"}\"}"); //working
+
+           // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
+           // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
+
+             aa =  "{\"$set\":{\"firstName\":\"nitinn123\",\"lastName\":\"uuuuuu\",\"gender\":\"M\",\"hireDate\":\"15\\/09\\/2018\",\"department\":\"yyy\"}}";
+            //  jsonArray.put(post_dict);
+            Log.e("o/p", details.toString());
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        if (post_dict.length() >= 0) {
+           // new SendDataToServerUpdates().execute(String.valueOf(details));
+            new SendDataToServerUpdates().execute(String.valueOf(aa));
+            // #call to async class
+        }
+//add background inline class here
     }
-*/
 
 
     private void initializeEmployee(long empId) {
@@ -246,7 +257,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
 //add background inline class here
     }
 
-    class SendDataToServer extends AsyncTask<String, String, String> {
+
+    class SendDataToServerUpdates extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -254,7 +266,97 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             String JsonDATA = params[0];
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
+
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            //  String dbname = pref.getString("dbname", "");
+            //  String tablename = pref.getString("tablename", "");
+
             try {
+                // URL url = new URL(baseUrl + dbname + tablename);
+                //URL url = new URL("http://10.115.96.147:27017/mydb/people?query={emp_id:1}");
+                URL url = new URL("http://10.115.96.147:27017/mydb/people");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setConnectTimeout(60000); //60 secs
+                urlConnection.setReadTimeout(60000); //60 secs
+                // is output buffer writter
+                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                //urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                urlConnection.setRequestProperty("Accept", "application/json");
+//set headers and method
+                Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                writer.write(JsonDATA);
+// json data
+                writer.close();
+
+                InputStream inputStream = urlConnection.getInputStream();
+//input stream
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null)
+                    buffer.append(inputLine + "\n");
+                if (buffer.length() == 0) {
+                    // Stream was empty. No point in parsing.
+                    return null;
+                }
+                JsonResponse = buffer.toString();
+//response data
+                //  Log.i(TAG,JsonResponse);
+                //send to post execute
+                return JsonResponse;
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        //  Log.e(TAG, "Error closing stream", e);
+                    }
+                }
+            }
+            return null;
+
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+
+
+        }
+
+    }
+
+
+    private class SendDataToServer extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String JsonResponse = null;
+            String JsonDATA = params[0];
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            //  String dbname = pref.getString("dbname", "");
+            //  String tablename = pref.getString("tablename", "");
+
+            try {
+                // URL url = new URL(baseUrl + dbname + tablename);
                 URL url = new URL("http://10.115.96.147:27017/mydb/people");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
@@ -317,6 +419,5 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
 
     }
 }
-
 
 
