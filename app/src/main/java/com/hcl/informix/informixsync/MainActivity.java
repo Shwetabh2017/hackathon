@@ -26,9 +26,11 @@ import com.hcl.informix.informixsync.DB.EmployeeDBHandler;
 import com.hcl.informix.informixsync.DB.EmployeeOperations;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -55,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
         deleteEmployeeButton = findViewById(R.id.button_delete_employee);
         viewAllEmployeeButton = findViewById(R.id.button_view_employees);
         createCVS = findViewById(R.id.button_create_employees_cvs);
-        if(Build.VERSION.SDK_INT>=24){
-            try{
+        if (Build.VERSION.SDK_INT >= 24) {
+            try {
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
                 m.invoke(null);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 file.createNewFile();
                 CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
                 Cursor curCSV = dbhelper.raw();
-                csvWrite.writeNext(curCSV.getColumnNames());
+                //csvWrite.writeNext(curCSV.getColumnNames());
                 while (curCSV.moveToNext()) {
                     String arrStr[] = null;
                     String[] mySecondStringArray = new String[curCSV.getColumnNames().length];
@@ -278,5 +281,15 @@ public class MainActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(shareIntent, "Share CSV"));
         }
     }
+
+//    void deleteFirstRow() {
+//        CSVReader reader2 = new CSVReader(new FileReader(filelocation));
+//        List<String[]> allElements = reader2.readAll();
+//        allElements.remove(rowNumber);
+//        FileWriter sw = new FileWriter(filelocation);
+//        CSVWriter writer = new CSVWriter(sw);
+//        writer.writeAll(allElements);
+//        writer.close();
+//    }
 }
 
