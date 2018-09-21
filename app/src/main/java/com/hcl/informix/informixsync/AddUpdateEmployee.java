@@ -3,6 +3,7 @@ package com.hcl.informix.informixsync;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +35,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -188,14 +190,14 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             post_dict.put("hireDate", hireDateEditText.getText().toString());
             post_dict.put("department", deptEditText.getText().toString());*/
 
-           // details.put("$set", post_dict.toString());
+            // details.put("$set", post_dict.toString());
 
-           // details.put("$set", "{\"$set\":\"{\\\"firstName\\\":\\\"nitinnnnnffg\\\"}\"}"); //working
+            // details.put("$set", "{\"$set\":\"{\\\"firstName\\\":\\\"nitinnnnnffg\\\"}\"}"); //working
 
-           // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
-           // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
+            // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
+            // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
 
-             aa =  "{\"$set\":{\"firstName\":\"nitinn123\",\"lastName\":\"uuuuuu\",\"gender\":\"M\",\"hireDate\":\"15\\/09\\/2018\",\"department\":\"yyy\"}}";
+            aa = "{\"$set\":{\"firstName\":\"rohit\",\"lastName\":\"uuuuuu\",\"gender\":\"M\",\"hireDate\":\"15\\/09\\/2018\",\"department\":\"yyy\"}}";
             //  jsonArray.put(post_dict);
             Log.e("o/p", details.toString());
 
@@ -203,7 +205,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             e.printStackTrace();
         }
         if (post_dict.length() >= 0) {
-           // new SendDataToServerUpdates().execute(String.valueOf(details));
+            // new SendDataToServerUpdates().execute(String.valueOf(details));
             new SendDataToServerUpdates().execute(String.valueOf(aa));
             // #call to async class
         }
@@ -272,9 +274,23 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             //  String tablename = pref.getString("tablename", "");
 
             try {
+
+                // Uri.Builder builder = new Uri.Builder().appendQueryParameter("emp_id","1");
+
+                //  final String query = builder.build().getEncodedQuery();
                 // URL url = new URL(baseUrl + dbname + tablename);
-                //URL url = new URL("http://10.115.96.147:27017/mydb/people?query={emp_id:1}");
-                URL url = new URL("http://10.115.96.147:27017/mydb/people");
+
+               /* String mQuery = URLEncoder.encode("?query={emp_id:1}", "UTF-8");
+                String myurl = "http://10.115.96.147:27017/mydb/people";
+                myurl += mQuery;*/
+
+                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+2+"%7D";
+
+
+                URL url = new URL(url1);
+
+                //    URL url = new URL("http://10.115.96.147:27017/mydb/people");
+                //URL url = new URL("http://10.115.96.147:27017/mydb/people");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 urlConnection.setConnectTimeout(60000); //60 secs
@@ -286,7 +302,10 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 urlConnection.setRequestProperty("Accept", "application/json");
 //set headers and method
                 Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                //writer.write(query);
+
                 writer.write(JsonDATA);
+                writer.flush();
 // json data
                 writer.close();
 
