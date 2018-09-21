@@ -197,7 +197,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
             // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
 
-            aa = "{\"$set\":{\"firstName\":\"rohit\",\"lastName\":\"uuuuuu\",\"gender\":\"M\",\"hireDate\":\"15\\/09\\/2018\",\"department\":\"yyy\"}}";
+             aa =  "{\"$set\":{\"firstName\":\""+firstNameEditText.getText().toString()+"\",\"lastName\":\""+lastNameEditText.getText().toString()+"\",\"gender\":\"M\",\"hireDate\":\""+hireDateEditText.getText().toString()+"\",\"department\":\""+deptEditText.getText().toString()+"\"}}";
+
             //  jsonArray.put(post_dict);
             Log.e("o/p", details.toString());
 
@@ -284,7 +285,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 String myurl = "http://10.115.96.147:27017/mydb/people";
                 myurl += mQuery;*/
 
-                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+2+"%7D";
+                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+4+"%7D";
 
 
                 URL url = new URL(url1);

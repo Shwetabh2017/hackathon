@@ -216,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteFromServer() {
-        new SendDataToServerUpdates().execute(String.valueOf(""));
+        new SendDataToServerDelete().execute(String.valueOf(""));
     }
 
-        class SendDataToServerUpdates extends AsyncTask<String, String, String> {
+        class SendDataToServerDelete extends AsyncTask<String, String, String> {
 
             @Override
             protected String doInBackground(String... params) {
@@ -236,8 +236,9 @@ public class MainActivity extends AppCompatActivity {
                     // URL url = new URL(baseUrl + dbname + tablename);
                  //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
                   //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
-                    URL url = new URL("http://10.115.96.147:27017/mydb/people?query={firstName:one}");
-                  urlConnection = (HttpURLConnection) url.openConnection();
+                    String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+3+"%7D";
+                    URL url = new URL(url1);
+                    urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setDoOutput(true);
                     // is output buffer writter
                     urlConnection.setRequestMethod("DELETE");
