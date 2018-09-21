@@ -289,7 +289,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 myurl += mQuery;*/
 
                 String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
-                Log.e( "doInBackground: ",empid );
+               // Log.e( "doInBackground: ",empid );
 
 
                 URL url = new URL(url1);
