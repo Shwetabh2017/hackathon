@@ -60,7 +60,9 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
     private String mode;
     private long empId;
     private EmployeeOperations employeeOps;
-    private String url = "http://10.115.96.147:27017/mydb/people";
+    private String empid;
+   // private String url = "http://10.115.96.147:27017/mydb/people";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
         if (mode.equals("Update")) {
             addUpdateButton.setText("Update Employee");
             empId = getIntent().getLongExtra(EXTRA_EMP_ID, 0);
+            empid = String.valueOf(empId);
             initializeEmployee(empId);
 
 
@@ -285,7 +288,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 String myurl = "http://10.115.96.147:27017/mydb/people";
                 myurl += mQuery;*/
 
-                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+4+"%7D";
+                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
+                Log.e( "doInBackground: ",empid );
 
 
                 URL url = new URL(url1);

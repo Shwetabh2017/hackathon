@@ -15,6 +15,7 @@ import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.hcl.informix.informixsync.DB.EmployeeDBHandler;
 import com.hcl.informix.informixsync.DB.EmployeeOperations;
+import static com.hcl.informix.informixsync.constants.empid;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String EXTRA_EMP_ID = "com.androidtutorialpoint.empId";
     private static final String EXTRA_ADD_UPDATE = "com.androidtutorialpoint.add_update";
     private final int RC_CAMERA_AND_LOCATION = 101;
+    public String emp_id;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         final EditText userInput = getEmpIdView.findViewById(R.id.editTextDialogUserInput);
 
-        deleteFromServer();
+
 
         // set dialog message
         alertDialogBuilder
@@ -206,11 +210,16 @@ public class MainActivity extends AppCompatActivity {
                         // get user input and set it to result
                         // edit text
                         employeeOps = new EmployeeOperations(MainActivity.this);
+                        emp_id = userInput.getText().toString();
+                        empid = emp_id;
                         employeeOps.removeEmployee(employeeOps.getEmployee(Long.parseLong(userInput.getText().toString())));
                         Toast t = Toast.makeText(MainActivity.this, "Employee removed successfully!", Toast.LENGTH_SHORT);
                         t.show();
+                        deleteFromServer();
+
                     }
                 }).create()
+
                 .show();
 
     }
@@ -236,8 +245,8 @@ public class MainActivity extends AppCompatActivity {
                     // URL url = new URL(baseUrl + dbname + tablename);
                  //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
                   //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
-                    String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+3+"%7D";
-                    URL url = new URL(url1);
+                    String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+emp_id+"%7D";
+                    URL url = new URL(url1.trim());
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setDoOutput(true);
                     // is output buffer writter
