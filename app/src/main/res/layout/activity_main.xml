@@ -40,6 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:id="@+id/ipaddress"
             android:hint="10.115.96.147" />
 
     </LinearLayout>
@@ -60,6 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:id="@+id/portno"
             android:hint="27017" />
 
     </LinearLayout>

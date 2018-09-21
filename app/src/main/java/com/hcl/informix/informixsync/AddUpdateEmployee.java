@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.hcl.informix.informixsync.constants.baseUrl;
+import static com.hcl.informix.informixsync.constants.mypref;
 
 public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFragment.DateDialogListener {
 
@@ -61,7 +62,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
     private long empId;
     private EmployeeOperations employeeOps;
     private String empid;
-   // private String url = "http://10.115.96.147:27017/mydb/people";
+    private String newurl ;
 
 
     @Override
@@ -82,13 +83,18 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
         employeeOps = new EmployeeOperations(this);
         syncButton = findViewById(R.id.button_add_update_sync_employee);
         mode = getIntent().getStringExtra(EXTRA_ADD_UPDATE);
+
+        SharedPreferences prefs = getSharedPreferences(mypref, MODE_PRIVATE);
+        String ipaddress = prefs.getString("ipaddress", "http://10.115.96.147:");//"No name defined" is the default value.
+        String portno = prefs.getString("port", "27017"); //0 is the default value.
+        newurl = baseUrl = ipaddress + portno;
+        Log.e( "onCreate: ",baseUrl );
+
         if (mode.equals("Update")) {
             addUpdateButton.setText("Update Employee");
             empId = getIntent().getLongExtra(EXTRA_EMP_ID, 0);
             empid = String.valueOf(empId);
             initializeEmployee(empId);
-
-
         }
 
 /*        syncButton.setOnClickListener(new View.OnClickListener() {
@@ -352,17 +358,11 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 }
             }
             return null;
-
-
         }
-
 
         @Override
         protected void onPostExecute(String s) {
-
-
         }
-
     }
 
 

@@ -1,6 +1,10 @@
 package com.hcl.informix.informixsync;
 
-public  class constants {
-    public static String baseUrl = "http://10.115.96.222:27017/";
-    public static String empid ;
+public class constants {
+    public static String baseUrl ;
+    public static String empid;
+    public static String _ipaddress;
+    public static String _portaddress;
+    public static String mypref ="MY_PREFS";
+
 }

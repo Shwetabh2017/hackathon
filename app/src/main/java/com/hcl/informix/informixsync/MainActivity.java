@@ -10,12 +10,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,15 +23,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
 import com.hcl.informix.informixsync.DB.EmployeeDBHandler;
 import com.hcl.informix.informixsync.DB.EmployeeOperations;
-import static com.hcl.informix.informixsync.constants.empid;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,11 +38,13 @@ import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+
+import static com.hcl.informix.informixsync.constants.baseUrl;
+import static com.hcl.informix.informixsync.constants.empid;
+import static com.hcl.informix.informixsync.constants.mypref;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String EXTRA_ADD_UPDATE = "com.androidtutorialpoint.add_update";
     private final int RC_CAMERA_AND_LOCATION = 101;
     public String emp_id;
+    EditText portno;
+    EditText ipaddress;
+    String ipaddressToGo;
+    String portNumToGo;
 
 
     @Override
@@ -72,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
         deleteEmployeeButton = findViewById(R.id.button_delete_employee);
         viewAllEmployeeButton = findViewById(R.id.button_view_employees);
         createCVS = findViewById(R.id.button_create_employees_cvs);
+        portno = findViewById(R.id.portno);
+        ipaddress = findViewById(R.id.ipaddress);
+
+
         if (Build.VERSION.SDK_INT >= 24) {
             try {
                 Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
@@ -85,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         addEmployeeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                updateData();
                 Intent i = new Intent(MainActivity.this, AddUpdateEmployee.class);
                 i.putExtra(EXTRA_ADD_UPDATE, "Add");
                 startActivity(i);
@@ -93,12 +101,16 @@ public class MainActivity extends AppCompatActivity {
         editEmployeeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                updateData();
                 getEmpIdAndUpdateEmp();
             }
         });
         deleteEmployeeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                updateData();
                 getEmpIdAndRemoveEmp();
             }
         });
@@ -119,6 +131,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void updateData() {
+        if (ipaddress.getText().toString().matches("")) {
+            ipaddressToGo = "10.155.96.147:";
+        } else {
+            ipaddressToGo = ipaddress.getText().toString();
+        }
+
+        if (portno.getText().toString().matches("")) {
+            portNumToGo = "27017";
+
+        } else {
+            portNumToGo = portno.getText().toString();
+        }
+
+        //Saving ipaddress and portno.
+
+        SharedPreferences.Editor editor = getSharedPreferences(mypref, MODE_PRIVATE).edit();
+        editor.putString("ipaddress", ipaddressToGo);
+        editor.putString("port", portNumToGo);
+        editor.apply();
     }
 
     @Override
@@ -183,8 +217,18 @@ public class MainActivity extends AppCompatActivity {
                         i.putExtra(EXTRA_EMP_ID, Long.parseLong(userInput.getText().toString()));
                         startActivity(i);
                     }
-                }).create()
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        dialog.cancel();
+                    }
+                })
+
+                .create()
                 .show();
+
 
     }
 
@@ -199,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilder.setView(getEmpIdView);
 
         final EditText userInput = getEmpIdView.findViewById(R.id.editTextDialogUserInput);
-
 
 
         // set dialog message
@@ -218,99 +261,106 @@ public class MainActivity extends AppCompatActivity {
                         deleteFromServer();
 
                     }
-                }).create()
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        dialog.cancel();
+                    }
+                })
 
+                .create()
                 .show();
 
     }
 
     private void deleteFromServer() {
-        new SendDataToServerDelete().execute(String.valueOf(""));
+        if (!baseUrl.equals(null))
+            new SendDataToServerDelete().execute(String.valueOf(""));
     }
 
-        class SendDataToServerDelete extends AsyncTask<String, String, String> {
+    class SendDataToServerDelete extends AsyncTask<String, String, String> {
 
-            @Override
-            protected String doInBackground(String... params) {
-                String JsonResponse = null;
-                String JsonDATA = params[0];
-                HttpURLConnection urlConnection = null;
-                BufferedReader reader = null;
+        @Override
+        protected String doInBackground(String... params) {
+            String JsonResponse = null;
+            String JsonDATA = params[0];
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
 
-                SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-                //  String dbname = pref.getString("dbname", "");
-                //  String tablename = pref.getString("tablename", "");
+            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            //  String dbname = pref.getString("dbname", "");
+            //  String tablename = pref.getString("tablename", "");
 
-                try {
-                    // URL url = new URL(baseUrl + dbname + tablename);
-                 //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
-                  //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
-                    String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+emp_id+"%7D";
-                    URL url = new URL(url1.trim());
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setDoOutput(true);
-                    // is output buffer writter
-                    urlConnection.setRequestMethod("DELETE");
-                    urlConnection.setRequestProperty("Content-Type", "application/json");
-                   // urlConnection.setRequestProperty("Content-Type", "applicaiton/json; charset=utf-8");
-                    urlConnection.setRequestProperty("Accept", "application/json");
+            try {
+                // URL url = new URL(baseUrl + dbname + tablename);
+                //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
+                //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
+                String url1 = baseUrl + "/mydb/people?query=%7Bemp_id:" + emp_id + "%7D";
+                URL url = new URL(url1.trim());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                // is output buffer writter
+                urlConnection.setRequestMethod("DELETE");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                // urlConnection.setRequestProperty("Content-Type", "applicaiton/json; charset=utf-8");
+                urlConnection.setRequestProperty("Accept", "application/json");
 //set headers and method
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
-                    writer.write(JsonDATA);
+                Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                writer.write(JsonDATA);
 // json data
-                    writer.close();
+                writer.close();
 
-                    InputStream inputStream = urlConnection.getInputStream();
+                InputStream inputStream = urlConnection.getInputStream();
 //input stream
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream == null) {
-                        // Nothing to do.
-                        return null;
-                    }
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                    String inputLine;
-                    while ((inputLine = reader.readLine()) != null)
-                        buffer.append(inputLine + "\n");
-                    if (buffer.length() == 0) {
-                        // Stream was empty. No point in parsing.
-                        return null;
-                    }
-                    JsonResponse = buffer.toString();
+                String inputLine;
+                while ((inputLine = reader.readLine()) != null)
+                    buffer.append(inputLine + "\n");
+                if (buffer.length() == 0) {
+                    // Stream was empty. No point in parsing.
+                    return null;
+                }
+                JsonResponse = buffer.toString();
 //response data
-                    //  Log.i(TAG,JsonResponse);
-                    //send to post execute
-                    return JsonResponse;
+                //  Log.i(TAG,JsonResponse);
+                //send to post execute
+                return JsonResponse;
 
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (urlConnection != null) {
-                        urlConnection.disconnect();
-                    }
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (final IOException e) {
-                            //  Log.e(TAG, "Error closing stream", e);
-                        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        //  Log.e(TAG, "Error closing stream", e);
                     }
                 }
-                return null;
-
-
             }
+            return null;
 
-
-            @Override
-            protected void onPostExecute(String s) {
-
-
-            }
 
         }
 
+
+        @Override
+        protected void onPostExecute(String s) {
+
+
+        }
+
+    }
 
 
     @Override
