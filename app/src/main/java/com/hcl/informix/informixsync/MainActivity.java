@@ -42,6 +42,7 @@ import java.net.URL;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static com.hcl.informix.informixsync.constants._ipaddress;
 import static com.hcl.informix.informixsync.constants.baseUrl;
 import static com.hcl.informix.informixsync.constants.empid;
 import static com.hcl.informix.informixsync.constants.mypref;
@@ -76,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         createCVS = findViewById(R.id.button_create_employees_cvs);
         portno = findViewById(R.id.portno);
         ipaddress = findViewById(R.id.ipaddress);
+
+          getIpAddressFromSharePref();
 
 
         if (Build.VERSION.SDK_INT >= 24) {
@@ -133,18 +136,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getIpAddressFromSharePref() {
+        SharedPreferences prefs = getSharedPreferences(mypref, MODE_PRIVATE);
+        String ipaddress1 = prefs.getString("ipaddress", "10.115.96.39");//"No name defined" is the default value.
+        String portno1 = prefs.getString("port", "27017"); //0 is the default value.
+        ipaddress.setText(ipaddress1);
+        portno.setText(portno1);
+    }
+
     private void updateData() {
         if (ipaddress.getText().toString().matches("")) {
-            ipaddressToGo = "10.155.96.147:";
+            ipaddressToGo = "10.115.96.39";
         } else {
-            ipaddressToGo = ipaddress.getText().toString();
+            ipaddressToGo = ipaddress.getText().toString().trim();
         }
 
         if (portno.getText().toString().matches("")) {
             portNumToGo = "27017";
 
         } else {
-            portNumToGo = portno.getText().toString();
+            portNumToGo = portno.getText().toString().trim();
         }
 
         //Saving ipaddress and portno.

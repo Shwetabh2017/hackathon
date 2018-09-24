@@ -3,7 +3,6 @@ package com.hcl.informix.informixsync;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -17,7 +16,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-
 import com.hcl.informix.informixsync.DB.EmployeeOperations;
 import com.hcl.informix.informixsync.Model.Employee;
 
@@ -27,7 +25,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +32,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -62,7 +58,7 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
     private long empId;
     private EmployeeOperations employeeOps;
     private String empid;
-    private String newurl ;
+    private String newurl;
 
 
     @Override
@@ -85,10 +81,10 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
         mode = getIntent().getStringExtra(EXTRA_ADD_UPDATE);
 
         SharedPreferences prefs = getSharedPreferences(mypref, MODE_PRIVATE);
-        String ipaddress = prefs.getString("ipaddress", "http://10.115.96.147:");//"No name defined" is the default value.
+        String ipaddress = prefs.getString("ipaddress", "10.115.96.39");//"No name defined" is the default value.
         String portno = prefs.getString("port", "27017"); //0 is the default value.
-        newurl = baseUrl = ipaddress + portno;
-        Log.e( "onCreate: ",baseUrl );
+        newurl = baseUrl = "http://" + ipaddress + ":" + portno;
+        Log.e("onCreate: ", baseUrl);
 
         if (mode.equals("Update")) {
             addUpdateButton.setText("Update Employee");
@@ -206,7 +202,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
             // details.put("\\\"$set\\\"", "{\\\"firstName\\\":\\\"nitin123\\\"}");
 
-             aa =  "{\"$set\":{\"firstName\":\""+firstNameEditText.getText().toString()+"\",\"lastName\":\""+lastNameEditText.getText().toString()+"\",\"gender\":\"M\",\"hireDate\":\""+hireDateEditText.getText().toString()+"\",\"department\":\""+deptEditText.getText().toString()+"\"}}";
+         //    aa =  "{\"$set\":{\"firstName\":\""+firstNameEditText.getText().toString()+"\",\"lastName\":\""+lastNameEditText.getText().toString()+"\",\"gender\":\"M\",\"hireDate\":\""+hireDateEditText.getText().toString()+"\",\"department\":\""+deptEditText.getText().toString()+"\"}}";
+             aa =  "{\"$set\":{\"firstName\":\""+firstNameEditText.getText().toString()+"\",\"lastName\":\""+lastNameEditText.getText().toString()+"\",\"gender\":\""+oldEmployee.getGender().toString()+"\",\"hireDate\":\""+hireDateEditText.getText().toString()+"\",\"department\":\""+deptEditText.getText().toString()+"\"}}";
 
             //  jsonArray.put(post_dict);
             Log.e("o/p", details.toString());
@@ -294,8 +291,18 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
                 String myurl = "http://10.115.96.147:27017/mydb/people";
                 myurl += mQuery;*/
 
-                String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
-               // Log.e( "doInBackground: ",empid );
+                //  String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
+
+                // String mUrl = URLEncoder.encode(newurl, "UTF-8");
+                // String url1 = newurl + "/mydb/people?query=%7Bemp_id:" + empid + "%7D";              //
+                 String url1 = "http://10.115.96.39:27017" + "/mydb/people?query=%7Bemp_id:" + empid + "%7D";
+
+                //
+              //  String url1 = "http://10.115.96.39:27017/mydb/people?query=%7Bemp_id:1%7D";
+
+                // Log.e( "doInBackground: ",newurl );
+                Log.e("sendUpdateURL: ", url1);
+                //String url1 = newurl+"/mydb/people?query=%7Bemp_id:"+empid+"%7D";
 
 
                 URL url = new URL(url1);
@@ -375,13 +382,14 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-            //  String dbname = pref.getString("dbname", "");
-            //  String tablename = pref.getString("tablename", "");
 
             try {
                 // URL url = new URL(baseUrl + dbname + tablename);
-                URL url = new URL("http://10.115.96.147:27017/mydb/people");
+                //  String newUrls = baseUrl+"/mydb/people";
+                String url1 = "http://10.115.96.39:27017/mydb/people";
+                //     String url1 = baseUrl + "/mydb/people";
+                Log.e("doInBackground33: ", url1);
+                URL url = new URL(url1);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
                 // is output buffer writter
