@@ -276,27 +276,8 @@ public class AddUpdateEmployee extends AppCompatActivity implements DatePickerFr
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            SharedPreferences pref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-            //  String dbname = pref.getString("dbname", "");
-            //  String tablename = pref.getString("tablename", "");
-
             try {
-
-                // Uri.Builder builder = new Uri.Builder().appendQueryParameter("emp_id","1");
-
-                //  final String query = builder.build().getEncodedQuery();
-                // URL url = new URL(baseUrl + dbname + tablename);
-
-               /* String mQuery = URLEncoder.encode("?query={emp_id:1}", "UTF-8");
-                String myurl = "http://10.115.96.147:27017/mydb/people";
-                myurl += mQuery;*/
-
-                //  String url1 = "http://10.115.96.147:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
-
-                // String mUrl = URLEncoder.encode(newurl, "UTF-8");
-                // String url1 = newurl + "/mydb/people?query=%7Bemp_id:" + empid + "%7D";              //
-                 String url1 = "http://10.115.96.39:27017" + "/mydb/people?query=%7Bemp_id:" + empid + "%7D";
-
+                 String url1 = "http://10.115.96.39:27017/mydb/people?query=%7Bemp_id:"+empid+"%7D";
                 //
               //  String url1 = "http://10.115.96.39:27017/mydb/people?query=%7Bemp_id:1%7D";
 

@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -286,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteFromServer() {
-        if (!baseUrl.equals(null))
             new SendDataToServerDelete().execute(String.valueOf(""));
     }
 
@@ -307,7 +307,8 @@ public class MainActivity extends AppCompatActivity {
                 // URL url = new URL(baseUrl + dbname + tablename);
                 //   URL url = new URL("http://10.115.96.147:27017/mydb/people");
                 //  final String encodedURL = URLEncoder.encode("http://10.115.96.147:27017/mydb/people?query={emp_id:2}", "UTF-8");
-                String url1 = baseUrl + "/mydb/people?query=%7Bemp_id:" + emp_id + "%7D";
+                String url1 = "http://10.115.96.39:27017/mydb/people?query=%7Bemp_id:" + emp_id + "%7D";
+                Log.e("delete: ","url1" );
                 URL url = new URL(url1.trim());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setDoOutput(true);
